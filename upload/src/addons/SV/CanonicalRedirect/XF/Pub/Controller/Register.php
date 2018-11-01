@@ -2,6 +2,7 @@
 
 namespace SV\CanonicalRedirect\XF\Pub\Controller;
 
+use SV\CanonicalRedirect\Listener;
 use XF\Mvc\ParameterBag;
 
 /**
@@ -12,6 +13,11 @@ class Register extends XFCP_Register
     public function preDispatch($action, ParameterBag $params)
     {
         parent::preDispatch($action, $params);
+
+        if (Listener::$redirectedOnce)
+        {
+            return;
+        }
 
         $options = \XF::options();
         if (!$options->SV_CanonicalRedirection_CloudFlareReg)
@@ -36,12 +42,13 @@ class Register extends XFCP_Register
         $requestUri = @$_SERVER['REQUEST_URI'];
         $basePath = rtrim($request->convertToAbsoluteUri($options->boardUrl), '/');
         $boardHost = parse_url($basePath, PHP_URL_HOST);
-        if (substr($host, 0, strlen($boardHost)) == $boardHost)
+        if (substr($host, 0, strlen($boardHost)) === $boardHost)
         {
             if ($options->SV_CanonicalRedirection_CloudFlare &&
                 (empty($_SERVER['HTTP_CF_RAY']) || empty($_SERVER['HTTP_CF_VISITOR']) || empty($_SERVER['HTTP_CF_CONNECTING_IP'])))
             {
                 // on non-cloudflare URL, but not using cloudflare!
+                Listener::$redirectedOnce = true;
                 throw new \XF\Mvc\Reply\Exception(new \XF\Mvc\Reply\Error("Must use CloudFlare", 444));
             }
 
@@ -57,6 +64,7 @@ class Register extends XFCP_Register
         {
             $redirectResponse = new \XF\Mvc\Reply\Redirect($url, 'temporary', "Must use CloudFlare");
         }
+        Listener::$redirectedOnce = true;
         throw new \XF\Mvc\Reply\Exception($redirectResponse);
     }
 }

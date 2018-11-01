@@ -1,8 +1,8 @@
 {
-    "event_id": "visitor_setup",
+    "event_id": "controller_pre_dispatch",
     "execute_order": 10,
     "callback_class": "SV\\CanonicalRedirect\\Listener",
-    "callback_method": "visitor_setup",
+    "callback_method": "controller_pre_dispatch",
     "active": true,
     "hint": "",
     "description": "Canonical Redirect"

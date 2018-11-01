@@ -4,8 +4,16 @@ namespace SV\CanonicalRedirect;
 
 class Listener
 {
-    public static function visitor_setup(\XF\Entity\User &$visitor)
+    public static $redirectedOnce = false;
+
+    public static function controller_pre_dispatch(/** @noinspection PhpUnusedParameterInspection */
+        \XF\Mvc\Controller $controller, $action, \XF\Mvc\ParameterBag $params)
     {
+        if (self::$redirectedOnce)
+        {
+            return;
+        }
+
         // only apply to public app (ie not admin)
         if (!(\XF::app() instanceof \XF\Pub\App))
         {
@@ -24,6 +32,8 @@ class Listener
         {
             return;
         }
+
+        $visitor = \XF::visitor();
 
         $isRobot = $session->isStarted() ? $session->get('robot') : true;
         $canRedirect = false;
@@ -66,11 +76,12 @@ class Listener
 
         $basePath = rtrim($request->convertToAbsoluteUri($options->boardUrl), '/');
         $boardHost = parse_url($basePath, PHP_URL_HOST);
-        if (substr($host, 0, strlen($boardHost)) == $boardHost)
+        if (substr($host, 0, strlen($boardHost)) === $boardHost)
         {
             if ($options->SV_CanonicalRedirection_CloudFlare &&
                 (empty($_SERVER['HTTP_CF_RAY']) || empty($_SERVER['HTTP_CF_VISITOR']) || empty($_SERVER['HTTP_CF_CONNECTING_IP'])))
             {
+                self::$redirectedOnce = true;
                 // on non-cloudflare URL, but not using cloudflare!
                 throw new \XF\Mvc\Reply\Exception(new \XF\Mvc\Reply\Error("Must use CloudFlare", 444));
             }
@@ -87,6 +98,8 @@ class Listener
         {
             $redirectResponse = new \XF\Mvc\Reply\Redirect($url, 'temporary', "Must use CloudFlare");
         }
+
+        self::$redirectedOnce = true;
         throw new \XF\Mvc\Reply\Exception($redirectResponse);
     }
 }
