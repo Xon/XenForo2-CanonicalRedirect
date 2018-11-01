@@ -1,0 +1,12 @@
+{
+    "edit_format": "select",
+    "edit_format_params": "all={xen:phrase sv_canonicalredirect_all}\nnonadmin={xen:phrase sv_canonicalredirect_nonadmins}\nnonmod={xen:phrase sv_canonicalredirect_nonmod}\nguest={xen:phrase sv_canonicalredirect_guests}\nrobot={xen:phrase sv_canonicalredirect_robots}",
+    "data_type": "string",
+    "sub_options": [],
+    "validation_class": "",
+    "validation_method": "",
+    "default_value": "robot",
+    "relations": {
+        "SV_CanonicalRedirect": 100
+    }
+}

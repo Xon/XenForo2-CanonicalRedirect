@@ -1,0 +1,1 @@
+Always applies redirection policies on registration pages.

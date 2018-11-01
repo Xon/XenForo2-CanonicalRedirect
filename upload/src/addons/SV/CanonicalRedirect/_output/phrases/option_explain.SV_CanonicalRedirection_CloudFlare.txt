@@ -1,0 +1,1 @@
+If a class of user could be redirected, validates that they are using cloudflare. If they are not returns 444, which causes nginx to hang up.
