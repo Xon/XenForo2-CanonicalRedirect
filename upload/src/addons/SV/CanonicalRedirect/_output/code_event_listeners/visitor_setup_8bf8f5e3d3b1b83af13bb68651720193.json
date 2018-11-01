@@ -1,0 +1,9 @@
+{
+    "event_id": "visitor_setup",
+    "execute_order": 10,
+    "callback_class": "SV\\CanonicalRedirect\\Listener",
+    "callback_method": "visitor_setup",
+    "active": true,
+    "hint": "",
+    "description": "Canonical Redirect"
+}
