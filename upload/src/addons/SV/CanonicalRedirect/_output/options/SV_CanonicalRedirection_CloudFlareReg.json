@@ -5,7 +5,8 @@
     "sub_options": [],
     "validation_class": "",
     "validation_method": "",
-    "default_value": "",
+    "advanced": false,
+    "default_value": "0",
     "relations": {
         "SV_CanonicalRedirect": 30
     }
