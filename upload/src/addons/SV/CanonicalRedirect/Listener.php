@@ -89,7 +89,7 @@ class Listener
             {
                 self::$redirectedOnce = true;
                 // on non-cloudflare URL, but not using cloudflare!
-                throw new ExceptionReply(new ErrorReply("Must use CloudFlare", 444));
+                throw new ExceptionReply(new ErrorReply("Must use CloudFlare", (int)($options->svNonCanonicalHttpErrorCode ?? 403)));
             }
 
             return;

@@ -52,7 +52,7 @@ class Register extends XFCP_Register
             {
                 // on non-cloudflare URL, but not using cloudflare!
                 Listener::$redirectedOnce = true;
-                throw new ExceptionReply(new ErrorReply("Must use CloudFlare", 444));
+                throw new ExceptionReply(new ErrorReply("Must use CloudFlare", (int)($options->svNonCanonicalHttpErrorCode ?? 403)));
             }
 
             return;

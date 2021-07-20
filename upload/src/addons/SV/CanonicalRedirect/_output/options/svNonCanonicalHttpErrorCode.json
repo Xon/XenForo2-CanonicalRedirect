@@ -1,0 +1,13 @@
+{
+    "edit_format": "spinbox",
+    "edit_format_params": "min=200\nmax=599",
+    "data_type": "integer",
+    "sub_options": [],
+    "validation_class": "",
+    "validation_method": "",
+    "advanced": false,
+    "default_value": "403",
+    "relations": {
+        "SV_CanonicalRedirect": 200
+    }
+}
