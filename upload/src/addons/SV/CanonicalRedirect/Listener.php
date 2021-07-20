@@ -2,12 +2,18 @@
 
 namespace SV\CanonicalRedirect;
 
+use XF\Mvc\Controller;
+use XF\Mvc\ParameterBag;
+use XF\Mvc\Reply\Error as ErrorReply;
+use XF\Mvc\Reply\Exception as ExceptionReply;
+use XF\Mvc\Reply\Redirect as RedirectReply;
+
 class Listener
 {
-    public static $redirectedOnce = false;
+    public static bool $redirectedOnce = false;
 
-    public static function controller_pre_dispatch(/** @noinspection PhpUnusedParameterInspection */
-        \XF\Mvc\Controller $controller, $action, \XF\Mvc\ParameterBag $params)
+    /** @noinspection PhpUnusedParameterInspection */
+    public static function controller_pre_dispatch(Controller $controller, $action, ParameterBag $params)
     {
         if (self::$redirectedOnce)
         {
@@ -35,7 +41,7 @@ class Listener
 
         $visitor = \XF::visitor();
 
-        $isRobot = $session->isStarted() ? $session->get('robot') : true;
+        $isRobot = !$session->isStarted() || $session->get('robot');
         $canRedirect = false;
         $options = \XF::options();
         switch ($options->SV_CanonicalRedirection)
@@ -66,40 +72,40 @@ class Listener
             return;
         }
 
-        $host = @$_SERVER['HTTP_HOST'];
-        if (empty($host))
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        if (\strlen($host) === 0)
         {
             // bad config configuration
             return;
         }
-        $requestUri = @$_SERVER['REQUEST_URI'];
 
-        $basePath = rtrim($request->convertToAbsoluteUri($options->boardUrl), '/');
-        $boardHost = parse_url($basePath, PHP_URL_HOST);
-        if (substr($host, 0, strlen($boardHost)) === $boardHost)
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        $basePath = \rtrim($request->convertToAbsoluteUri($options->boardUrl), '/');
+        $boardHost = \parse_url($basePath, PHP_URL_HOST);
+        if (\substr($host, 0, \strlen($boardHost)) === $boardHost)
         {
-            if ($options->SV_CanonicalRedirection_CloudFlare &&
+            if (($options->SV_CanonicalRedirection_CloudFlare ?? false) &&
                 (empty($_SERVER['HTTP_CF_RAY']) || empty($_SERVER['HTTP_CF_VISITOR']) || empty($_SERVER['HTTP_CF_CONNECTING_IP'])))
             {
                 self::$redirectedOnce = true;
                 // on non-cloudflare URL, but not using cloudflare!
-                throw new \XF\Mvc\Reply\Exception(new \XF\Mvc\Reply\Error("Must use CloudFlare", 444));
+                throw new ExceptionReply(new ErrorReply("Must use CloudFlare", 444));
             }
 
             return;
         }
 
         $url = $basePath . $requestUri;
-        if ($options->SV_CanonicalRedirection_Perm)
+        if ($options->SV_CanonicalRedirection_Perm ?? false)
         {
-            $redirectResponse = new \XF\Mvc\Reply\Redirect($url, 'permanent', "Must use CloudFlare");
+            $redirectResponse = new RedirectReply($url, 'permanent', "Must use CloudFlare");
         }
         else
         {
-            $redirectResponse = new \XF\Mvc\Reply\Redirect($url, 'temporary', "Must use CloudFlare");
+            $redirectResponse = new RedirectReply($url, 'temporary', "Must use CloudFlare");
         }
 
         self::$redirectedOnce = true;
-        throw new \XF\Mvc\Reply\Exception($redirectResponse);
+        throw new ExceptionReply($redirectResponse);
     }
 }
