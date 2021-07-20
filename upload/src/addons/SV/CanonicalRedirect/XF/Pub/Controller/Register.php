@@ -48,7 +48,7 @@ class Register extends XFCP_Register
         if (\substr($host, 0, \strlen($boardHost)) === $boardHost)
         {
             if (($options->SV_CanonicalRedirection_CloudFlare ?? false) &&
-                (empty($_SERVER['HTTP_CF_RAY']) || empty($_SERVER['HTTP_CF_VISITOR']) || empty($_SERVER['HTTP_CF_CONNECTING_IP'])))
+                (empty($_SERVER['HTTP_CF_RAY']) || empty($_SERVER['HTTP_CF_VISITOR'])))
             {
                 // on non-cloudflare URL, but not using cloudflare!
                 Listener::$redirectedOnce = true;
